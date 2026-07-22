@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>Test Case Creation Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script>
+  (function () {
+    var saved = localStorage.getItem("tcg-theme");
+    var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#F4F5F7; --surface:#FFFFFF; --surface-alt:#FAFBFC;
+    --border:#DFE1E6; --border-strong:#C1C7D0; --chip-border:#D7E4FF; --track-bg:#E7E9EE; --code-bg:#EAECF0;
+    --text:#172B4D; --text-2:#5E6C84; --text-3:#8993A4;
+    --primary:#2563EB; --primary-hover:#1D4ED8; --primary-050:#EFF4FF;
+    --success:#16A34A; --success-hover:#15803D; --success-050:#E7F7EE;
+    --danger:#DE350B; --danger-050:#FFEDEA;
+    --ring:rgba(37,99,235,.30);
+    --radius:10px; --radius-lg:14px;
+    --shadow-sm:0 1px 2px rgba(9,30,66,.08),0 1px 1px rgba(9,30,66,.06);
+    --shadow-md:0 4px 12px rgba(9,30,66,.10),0 1px 3px rgba(9,30,66,.08);
+    --shadow-lg:0 18px 48px rgba(9,30,66,.24);
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#0B1220; --surface:#151E30; --surface-alt:#111A2B;
+    --border:#28354D; --border-strong:#3B4A68; --chip-border:#2C4270; --track-bg:#1E2A40; --code-bg:#1E2A40;
+    --text:#E7ECF5; --text-2:#A6B1C6; --text-3:#7C88A0;
+    --primary:#3B82F6; --primary-hover:#60A5FA; --primary-050:#16233D;
+    --success:#34D399; --success-hover:#5FE0B3; --success-050:#0F2A22;
+    --danger:#F87171; --danger-050:#3A1616;
+    --ring:rgba(91,141,239,.35);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.35),0 1px 1px rgba(0,0,0,.25);
+    --shadow-md:0 4px 14px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
+    --shadow-lg:0 18px 48px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:'Inter',system-ui,'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+
+  .topbar{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--border); box-shadow:var(--shadow-sm);}
+  .topbar-inner{max-width:1000px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0;}
+  .brand-badge{flex:0 0 auto; width:38px; height:38px; border-radius:10px; background:var(--primary);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:var(--shadow-sm);}
+  .brand-name{font-weight:600; font-size:16px; color:var(--text); letter-spacing:-.2px;}
+  .ver{flex:0 0 auto; font-size:12px; font-weight:600; color:var(--primary); background:var(--primary-050);
+    border:1px solid var(--chip-border); padding:3px 10px; border-radius:999px;}
+  .theme-toggle{flex:0 0 auto; width:30px; height:30px; border-radius:8px; border:1px solid var(--border-strong);
+    background:var(--surface); color:var(--text-2); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:14px; transition:background .15s,border-color .15s,color .15s;}
+  .theme-toggle:hover{border-color:var(--primary); color:var(--primary); background:var(--primary-050);}
+
+  .page{max-width:760px; margin:0 auto; padding:32px 20px 64px;}
+
+  /* Landing */
+  .landing-head{text-align:center; margin:0 0 28px;}
+  .landing-icon{width:76px; height:76px; margin:0 auto 16px; border-radius:18px; background:var(--primary-050);
+    color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:38px;}
+  .landing-head h1{font-size:26px; font-weight:700; letter-spacing:-.4px; margin:0 0 8px;}
+  .landing-head p{color:var(--text-2); font-size:14.5px; margin:0;}
+  .option-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:0 0 20px;}
+  @media(max-width:640px){.option-grid{grid-template-columns:1fr;}}
+  .option-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm); padding:30px 24px; text-align:center; display:flex; flex-direction:column;
+    align-items:center; transition:transform .2s, box-shadow .2s, border-color .2s; animation:fadeUp .45s both;}
+  .option-card:hover{transform:translateY(-5px); box-shadow:var(--shadow-md);}
+  .option-card.green:hover{border-color:var(--success);}
+  .option-card.blue:hover{border-color:var(--primary);}
+  .option-icon{width:78px; height:78px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:34px; margin-bottom:16px;}
+  .option-card.green .option-icon{background:var(--success-050); color:var(--success);}
+  .option-card.blue .option-icon{background:var(--primary-050); color:var(--primary);}
+  .option-num{font-size:26px; font-weight:700; margin-bottom:4px;}
+  .option-card.green .option-num{color:var(--success);}
+  .option-card.blue .option-num{color:var(--primary);}
+  .option-title{font-size:18px; font-weight:600; margin:2px 0 12px; letter-spacing:-.2px; line-height:1.3;}
+  .option-sep{width:38px; height:3px; border-radius:2px; margin:0 auto 14px;}
+  .option-card.green .option-sep{background:var(--success);}
+  .option-card.blue .option-sep{background:var(--primary);}
+  .option-desc{color:var(--text-2); font-size:13.5px; line-height:1.6; margin:0 0 22px; flex:1;}
+  .option-cta{width:100%;}
+  .info-bar{display:flex; gap:10px; align-items:flex-start; background:var(--surface-alt); border:1px solid var(--border);
+    border-radius:var(--radius); padding:14px 16px; color:var(--text-2); font-size:13px;}
+  .info-bar i{color:var(--primary); font-size:16px; margin-top:1px;}
+
+  /* Work cards (both flows) */
+  .workcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md); overflow:hidden; animation:fadeUp .4s both;}
+  .back-link{display:inline-flex; align-items:center; gap:7px; background:transparent; border:none; color:var(--text-2);
+    font-size:13.5px; font-weight:600; cursor:pointer; padding:4px 6px 4px 0; margin-bottom:10px; font-family:inherit;}
+  .back-link:hover{color:var(--primary);}
+  .workcard-head{padding:22px 26px 18px; border-bottom:1px solid var(--border); background:linear-gradient(180deg,var(--surface),var(--surface-alt));}
+  .workcard-head h1{margin:0 0 4px; font-size:20px; font-weight:600; letter-spacing:-.3px;}
+  .lede{margin:0; color:var(--text-2); font-size:13.5px;}
+  .workcard-body{padding:22px 26px 26px; display:flex; flex-direction:column; gap:18px;}
+  .workcard-foot{display:flex; gap:9px; align-items:flex-start; padding:14px 26px; background:var(--surface-alt);
+    border-top:1px solid var(--border); color:var(--text-2); font-size:12.5px;}
+  .workcard-foot i{color:var(--primary); font-size:15px; margin-top:1px;}
+
+  .field{display:flex; flex-direction:column; gap:7px;}
+  .lbl{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--text);}
+  .lbl i{color:var(--text-3); font-size:15px;}
+  .opt{font-weight:400; color:var(--text-3); font-size:12px;}
+  .req{color:var(--danger); font-weight:700;}
+  .ctl{width:100%; background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius);
+    color:var(--text); padding:0 12px; height:42px; font-size:14px; font-family:inherit; transition:border-color .15s,box-shadow .15s;}
+  textarea.ctl{height:auto; min-height:70px; padding:10px 12px; resize:vertical; line-height:1.55;}
+  .ctl::placeholder{color:var(--text-3);}
+  .ctl:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px var(--ring);}
+  .select-wrap{position:relative;}
+  select.ctl{appearance:none; -webkit-appearance:none; padding-right:38px; cursor:pointer;}
+  .select-wrap .caret{position:absolute; right:13px; top:50%; transform:translateY(-50%); color:var(--text-3); pointer-events:none; font-size:13px;}
+
+  .sr-file{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;}
+  .filebox-row{display:flex; align-items:center; gap:8px;}
+  .filebox{display:flex; align-items:center; gap:12px; width:100%; flex:1 1 auto; min-width:0; cursor:pointer;
+    background:var(--surface-alt); border:1.5px dashed var(--border-strong); border-radius:var(--radius); padding:14px 16px; transition:border-color .15s,background .15s;}
+  .filebox:hover{border-color:var(--primary); background:var(--primary-050);}
+  .fb-icon{font-size:22px; color:var(--primary);}
+  .fb-main{flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;}
+  .fb-hint{flex:0 0 auto; font-size:12px; font-weight:600; color:var(--primary); background:var(--surface); border:1px solid var(--chip-border); padding:4px 10px; border-radius:6px;}
+  .fb-remove{flex:0 0 auto; width:26px; height:26px; border-radius:7px; border:1.5px solid var(--border-strong);
+    background:var(--surface); color:var(--text-2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;}
+  .fb-remove:hover{background:var(--danger-050); border-color:var(--danger); color:var(--danger);}
+
+  .btn{display:block; width:100%; text-align:center; border:1px solid transparent; border-radius:var(--radius);
+    padding:12px 16px; font-size:15px; font-weight:600; font-family:inherit; cursor:pointer; box-shadow:var(--shadow-sm); transition:background .15s,box-shadow .15s,transform .06s;}
+  .btn i{margin-right:9px; vertical-align:-2px; font-size:16px;}
+  .btn:hover{box-shadow:var(--shadow-md);}
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled{opacity:.6; cursor:not-allowed; box-shadow:none;}
+  .btn-primary{background:var(--primary); color:#fff;}
+  .btn-primary:hover{background:var(--primary-hover);}
+  .btn-success{background:var(--success); color:#fff;}
+  .btn-success:hover{background:var(--success-hover);}
+  .ghost{display:block; width:100%; text-align:center; margin-top:10px; background:transparent; color:var(--text-2);
+    border:1px solid var(--border-strong); border-radius:var(--radius); padding:10px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer;}
+  .ghost:hover{background:var(--surface-alt);}
+
+  .row-hidden{display:none;}
+  .check-group{display:flex; flex-wrap:wrap; gap:8px;}
+  .check-item{display:flex; align-items:center; gap:8px; flex:1 1 auto; min-width:130px;
+    background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius); padding:10px 12px; cursor:pointer; font-size:13.5px; font-weight:500;}
+  .check-item:hover{border-color:var(--primary); background:var(--primary-050);}
+  .check-item input{width:16px; height:16px; accent-color:var(--primary); cursor:pointer;}
+
+  /* Manual test-case cards */
+  .tc-card{background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius); padding:16px 16px 4px; margin-bottom:14px;}
+  .tc-card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .tc-card-head span{font-weight:600; font-size:13.5px;}
+  .tc-remove{background:var(--surface); border:1px solid var(--border-strong); color:var(--text-2); width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:11px;}
+  .tc-remove:hover{background:var(--danger-050); border-color:var(--danger); color:var(--danger);}
+  .tc-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media(max-width:520px){.tc-grid{grid-template-columns:1fr;}}
+  .tc-card .field{margin-bottom:12px;}
+  .add-tc{width:100%; background:transparent; border:1.5px dashed var(--border-strong); color:var(--primary);
+    border-radius:var(--radius); padding:11px; font-weight:600; cursor:pointer; font-family:inherit; margin-bottom:4px;}
+  .add-tc:hover{background:var(--primary-050); border-color:var(--primary);}
+  .ctl.invalid{border-color:var(--danger); box-shadow:0 0 0 3px rgba(222,53,11,.16);}
+  .tc-head-left{display:flex; align-items:center; gap:10px;}
+  .tc-id-chip{font-size:11px; font-weight:700; color:var(--primary); background:var(--primary-050); border:1px solid var(--chip-border); padding:2px 9px; border-radius:999px; letter-spacing:.3px;}
+  .form-hint{font-size:12.5px; color:var(--text-3); margin:-6px 0 2px;}
+  .label-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .btn-outline{display:inline-flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--primary);
+    color:var(--primary); border-radius:8px; padding:7px 12px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s;}
+  .btn-outline:hover{background:var(--primary-050);}
+  .char-counter{text-align:right; font-size:12px; color:var(--text-3); margin-top:5px;}
+  .ai-note{display:flex; gap:9px; align-items:flex-start; background:var(--success-050); border:1px solid rgba(22,163,74,.28);
+    border-radius:var(--radius); padding:12px 14px; color:var(--text-2); font-size:13px; line-height:1.5;}
+  .ai-note i{color:var(--success); font-size:16px; margin-top:1px;}
+
+  /* Overlays */
+  .overlay{position:fixed; inset:0; background:rgba(9,30,66,.54); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:20px; z-index:60;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:34px 32px 28px; max-width:432px; width:100%; text-align:center; box-shadow:var(--shadow-lg);}
+  .modal h2{font-size:18px; margin:0 0 8px; font-weight:600;}
+  .modal p{color:var(--text-2); font-size:13.5px; margin:0 0 22px; line-height:1.55;}
+  .track{height:10px; background:var(--track-bg); border-radius:999px; overflow:hidden;}
+  .fill{height:100%; width:0%; border-radius:999px; background:var(--primary); transition:width .5s ease;}
+  .pct{font-size:30px; font-weight:700; margin:16px 0 0; font-variant-numeric:tabular-nums;}
+  .spinner{width:30px; height:30px; border:3px solid var(--track-bg); border-top-color:var(--primary); border-radius:50%; margin:0 auto 16px; animation:spin .9s linear infinite;}
+  .check{width:66px; height:66px; border-radius:50%; background:var(--success-050); color:var(--success); font-size:34px; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;}
+  .check.err{background:var(--danger-050); color:var(--danger);}
+  .err{color:var(--danger);}
+  .modal .btn{margin-top:6px;}
+
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important;}}
+  @media (max-width:600px){ .workcard-head,.workcard-body,.workcard-foot{padding-left:18px; padding-right:18px;} }
+
+  /* ===================== DYNAMIC VISUAL POLISH ===================== */
+  body{position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:-10% -10% -10% -10%; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(600px 440px at 12% 16%, rgba(37,99,235,.15), transparent 60%),
+      radial-gradient(560px 440px at 88% 10%, rgba(22,163,74,.13), transparent 62%),
+      radial-gradient(680px 520px at 78% 92%, rgba(124,58,237,.11), transparent 60%);
+    animation:bgShift 20s ease-in-out infinite alternate;
+  }
+  :root[data-theme="dark"] body::before{
+    background:
+      radial-gradient(600px 440px at 12% 16%, rgba(59,130,246,.22), transparent 60%),
+      radial-gradient(560px 440px at 88% 10%, rgba(52,211,153,.15), transparent 62%),
+      radial-gradient(680px 520px at 78% 92%, rgba(139,92,246,.18), transparent 60%);
+  }
+  @keyframes bgShift{0%{transform:translate3d(0,0,0) scale(1);}100%{transform:translate3d(0,-22px,0) scale(1.07);}}
+
+  /* Hero */
+  .landing-icon{
+    background:linear-gradient(135deg,var(--primary),#7C3AED)!important; color:#fff!important;
+    box-shadow:0 14px 34px rgba(37,99,235,.38); animation:floatY 4.2s ease-in-out infinite;
+  }
+  @keyframes floatY{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-9px) rotate(-3deg);}}
+  .landing-head h1{
+    background:linear-gradient(92deg,var(--text) 12%,var(--primary) 62%,#7C3AED);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .landing-head{animation:rise .55s ease both;}
+
+  /* Option cards */
+  .option-card{position:relative; overflow:hidden; animation:rise .6s cubic-bezier(.2,.7,.3,1) both;}
+  .option-card.green{animation-delay:.06s;} .option-card.blue{animation-delay:.16s;}
+  .option-card::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; transform:scaleX(0); transform-origin:left; transition:transform .35s ease;}
+  .option-card.green::before{background:linear-gradient(90deg,var(--success),#22C55E);}
+  .option-card.blue::before{background:linear-gradient(90deg,var(--primary),#7C3AED);}
+  .option-card:hover::before{transform:scaleX(1);}
+  .option-card:hover{box-shadow:0 24px 54px rgba(9,30,66,.16);}
+  .option-icon{transition:transform .35s cubic-bezier(.2,.8,.3,1.3);}
+  .option-card:hover .option-icon{transform:scale(1.14) rotate(-5deg);}
+  .option-cta i{transition:transform .25s ease;}
+  .option-cta:hover i{transform:translateX(5px);}
+  @keyframes rise{from{opacity:0; transform:translateY(22px);}to{opacity:1; transform:none;}}
+
+  /* Gradient buttons */
+  .btn-primary{background:linear-gradient(135deg,var(--primary),#4F46E5);}
+  .btn-primary:hover{background:linear-gradient(135deg,var(--primary-hover),#4338CA); box-shadow:0 12px 26px rgba(37,99,235,.34);}
+  .btn-success{background:linear-gradient(135deg,var(--success),#0EA371);}
+  .btn-success:hover{background:linear-gradient(135deg,var(--success-hover),#0B8F63); box-shadow:0 12px 26px rgba(22,163,74,.30);}
+
+  /* Cards / brand shimmer */
+  .workcard{animation:rise .5s ease both;}
+  .brand-badge{background:linear-gradient(135deg,var(--primary),#7C3AED);}
+  .info-bar{backdrop-filter:blur(2px);}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-badge" aria-hidden="true"><i class="bi bi-clipboard2-check"></i></span>
+        <span class="brand-name">Test Case Creation Portal</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <i class="bi bi-moon-stars" id="themeIcon" aria-hidden="true"></i>
+        </button>
+        <span class="ver">v3.0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ============ LANDING ============ -->
+    <section id="landingScreen">
+      <div class="landing-head">
+        <div class="landing-icon" aria-hidden="true"><i class="bi bi-clipboard2-check"></i></div>
+        <h1>Welcome to Test Case Creation Portal</h1>
+        <p>Choose an option below to create test cases based on your preferred method.</p>
+      </div>
+      <div class="option-grid">
+        <div class="option-card green">
+          <div class="option-icon" aria-hidden="true"><i class="bi bi-pencil-square"></i></div>
+          <div class="option-num">1</div>
+          <div class="option-title">Manual Testcase Creation using Scenarios</div>
+          <div class="option-sep"></div>
+          <div class="option-desc">Create test cases manually by defining scenarios, steps, test data and expected results.</div>
+          <button class="btn btn-success option-cta" id="goManual"><i class="bi bi-arrow-right"></i>Create Manually</button>
+        </div>
+        <div class="option-card blue">
+          <div class="option-icon" aria-hidden="true"><i class="bi bi-folder2-open"></i></div>
+          <div class="option-num">2</div>
+          <div class="option-title">Using BRD and Solution Testcase Creation</div>
+          <div class="option-sep"></div>
+          <div class="option-desc">Upload BRD / solution documents to automatically generate structured test cases with AI.</div>
+          <button class="btn btn-primary option-cta" id="goDocs"><i class="bi bi-arrow-right"></i>Create using Documents</button>
+        </div>
+      </div>
+      <div class="info-bar">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        <span>Select the option that best fits your requirement. You can always switch between the options later.</span>
+      </div>
+    </section>
+
+    <!-- ============ DOCUMENTS (AI) ============ -->
+    <section id="docScreen" class="row-hidden">
+      <button class="back-link" data-back><i class="bi bi-arrow-left"></i> Back to options</button>
+      <div class="workcard">
+        <div class="workcard-head">
+          <h1>Create using Documents</h1>
+          <p class="lede">Upload a BRD (PDF / Word / Excel) and let AI generate user stories, scenarios and test cases.</p>
+        </div>
+        <form id="docForm" class="workcard-body" novalidate>
+          <div class="field">
+            <label class="lbl" for="inputMethod"><i class="bi bi-sliders2"></i> Input Source</label>
+            <div class="select-wrap">
+              <select id="inputMethod" class="ctl">
+                <option value="Upload File">Upload File</option>
+                <option value="File Path">File Path</option>
+              </select>
+              <i class="bi bi-chevron-down caret"></i>
+            </div>
+          </div>
+
+          <div id="uploadRow">
+            <div class="field">
+              <span class="lbl"><i class="bi bi-file-earmark-arrow-up"></i> BRD File <span class="opt">.pdf, .docx, .xlsx, .csv</span></span>
+              <input type="file" id="brdFile" accept=".pdf,.docx,.xlsx,.csv" class="sr-file" />
+              <div class="filebox-row">
+                <label class="filebox" for="brdFile">
+                  <i class="bi bi-cloud-arrow-up-fill fb-icon"></i>
+                  <span class="fb-main"><span id="fileName">Choose a file&hellip;</span></span>
+                  <span class="fb-hint">Browse</span>
+                </label>
+                <button type="button" class="fb-remove row-hidden" id="removeFileBtn" aria-label="Remove file"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div id="pathRow" class="row-hidden">
+            <div class="field">
+              <label class="lbl" for="brdFilePath"><i class="bi bi-folder2-open"></i> BRD file path <span class="opt">full path to the file on this PC</span></label>
+              <input type="text" id="brdFilePath" class="ctl" placeholder="e.g. C:\Users\you\Documents\yourfile.pdf" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="lbl"><i class="bi bi-ui-checks"></i> What to Generate <span class="opt">select one or more</span></span>
+            <div class="check-group">
+              <label class="check-item"><input type="checkbox" id="genUserStories" /> User Stories</label>
+              <label class="check-item"><input type="checkbox" id="genScenarios" /> Scenarios</label>
+              <label class="check-item"><input type="checkbox" id="genTestCases" /> Test Cases</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl" for="description"><i class="bi bi-chat-left-text"></i> Description / Conditions <span class="opt">optional — extra context the AI must follow</span></label>
+            <textarea id="description" class="ctl" rows="3" placeholder="e.g. Cover only sections 2.31–2.56; module = NBO Dispute Management; include timeout & duplicate cases."></textarea>
+          </div>
+
+          <div class="field row-hidden" id="preConditionsField">
+            <label class="lbl" for="preConditions"><i class="bi bi-list-check"></i> Preconditions <span class="req">*</span> <span class="opt">prepended to every test case</span></label>
+            <textarea id="preConditions" class="ctl" rows="2"></textarea>
+          </div>
+          <div class="field row-hidden" id="testStepsField">
+            <label class="lbl" for="testSteps"><i class="bi bi-list-ol"></i> Default Test Steps <span class="req">*</span> <span class="opt">prepended before AI steps</span></label>
+            <textarea id="testSteps" class="ctl" rows="2"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="docGenBtn"><i class="bi bi-stars"></i>Generate</button>
+        </form>
+        <div class="workcard-foot">
+          <i class="bi bi-info-circle"></i>
+          <span>Text-based PDF, Word and Excel are supported. Scanned/image-only documents cannot be processed.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MANUAL ============ -->
+    <section id="manualScreen" class="row-hidden">
+      <button class="back-link" data-back><i class="bi bi-arrow-left"></i> Back to options</button>
+      <div class="workcard">
+        <div class="workcard-head">
+          <h1>Manual Test Case Creation using Scenarios</h1>
+          <p class="lede">Write your scenarios and AI will generate comprehensive, structured test cases.</p>
+        </div>
+        <div class="workcard-body">
+          <div class="field">
+            <div class="label-row">
+              <label class="lbl" for="scenarios"><i class="bi bi-list-check"></i> Enter Scenarios <span class="req">*</span></label>
+              <button type="button" class="btn-outline" id="exampleBtn"><i class="bi bi-file-earmark-text"></i> Example Scenarios</button>
+            </div>
+            <p class="form-hint">Write one or more scenarios. Each scenario will be used to generate relevant test cases.</p>
+            <textarea id="scenarios" class="ctl" rows="10" maxlength="5000" placeholder="Example:&#10;1. User should be able to login with valid credentials&#10;2. User should not be able to login with invalid password&#10;3. System should lock the account after 5 failed login attempts&#10;..."></textarea>
+            <div class="char-counter"><span id="charCount">0</span> / 5000</div>
+          </div>
+          <div class="ai-note">
+            <i class="bi bi-magic"></i>
+            <span>AI will analyze your scenarios and generate comprehensive test cases with steps, test data and expected results.</span>
+          </div>
+          <button type="button" class="btn btn-success" id="scenariosGenBtn">Next: Generate Test Cases <i class="bi bi-arrow-right" style="margin-left:8px;margin-right:0"></i></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Shared overlays -->
+  <div class="overlay" id="progressOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="spinner"></div>
+      <h2 id="progTitle">Generating&hellip;</h2>
+      <p id="progSub">Building your test cases. This usually takes under a minute.</p>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="pct" id="pct">0%</div>
+    </div>
+  </div>
+  <div class="overlay" id="doneOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div id="doneIcon" class="check">&#10003;</div>
+      <h2 id="doneTitle">Generated successfully</h2>
+      <p id="doneMsg">Your Excel is ready — click Download to save it.</p>
+      <button class="btn btn-success" id="downloadBtn"><i class="bi bi-download"></i>Download Excel</button>
+      <button class="ghost" id="closeBtn"><i class="bi bi-x-lg"></i>Close</button>
+    </div>
+  </div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- theme ----
+  var themeIcon = $("themeIcon");
+  function syncThemeIcon(){ themeIcon.className = document.documentElement.getAttribute("data-theme")==="dark" ? "bi bi-sun" : "bi bi-moon-stars"; }
+  syncThemeIcon();
+  $("themeToggle").addEventListener("click", function(){
+    var next = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next); localStorage.setItem("tcg-theme", next); syncThemeIcon();
+  });
+
+  // ---- screen navigation ----
+  function show(id){
+    ["landingScreen","docScreen","manualScreen"].forEach(function(s){ $(s).className = (s===id? "" : "row-hidden"); });
+    window.scrollTo(0,0);
+  }
+  $("goManual").addEventListener("click", function(){ show("manualScreen"); });
+  $("goDocs").addEventListener("click", function(){ show("docScreen"); });
+  document.querySelectorAll("[data-back]").forEach(function(b){ b.addEventListener("click", function(){ show("landingScreen"); }); });
+
+  // ---- shared generate result handling ----
+  var lastBlob=null, timer=null, prog=0, downloadName="TestCases.xlsx";
+  function setBar(p){ $("fill").style.width=p+"%"; $("pct").textContent=Math.round(p)+"%"; }
+  function startProgress(sub){ $("progSub").textContent=sub; prog=0; setBar(0); $("progressOverlay").className="overlay show";
+    timer=setInterval(function(){ if(prog<95){ prog+=Math.max(0.4,(95-prog)*0.03); setBar(prog);} },500); }
+  function stopProgress(v){ clearInterval(timer); setBar(v); }
+
+  function runGenerate(fetchPromise, label, button){
+    button.disabled=true;
+    startProgress("Building "+label+". This usually takes under a minute.");
+    fetchPromise
+      .then(function(r){
+        if(!r.ok){ return r.text().then(function(t){ var m=""; try{ m=JSON.parse(t).message||JSON.parse(t).error; }catch(e){ m=t; } throw new Error(m||("Failed (HTTP "+r.status+")")); }); }
+        var cd=r.headers.get("Content-Disposition")||""; var mm=/filename="?([^";]+)"?/.exec(cd);
+        downloadName = (mm&&mm[1]) ? mm[1] : "TestCases.xlsx";
+        return r.arrayBuffer();
+      })
+      .then(function(buf){
+        var arr=new Uint8Array(buf);
+        if(arr.length<600 || arr[0]!==0x50 || arr[1]!==0x4B){ throw new Error("Could not generate a valid Excel. Please check your input and try again."); }
+        lastBlob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+        stopProgress(100);
+        setTimeout(function(){
+          $("progressOverlay").className="overlay";
+          $("doneIcon").className="check"; $("doneIcon").innerHTML="&#10003;";
+          $("doneTitle").className=""; $("doneTitle").textContent=label+" generated successfully";
+          $("doneMsg").textContent="Your Excel is ready — click Download to save it.";
+          $("downloadBtn").style.display="block";
+          $("doneOverlay").className="overlay show";
+        },450);
+      })
+      .catch(function(err){
+        stopProgress(0); $("progressOverlay").className="overlay";
+        $("doneIcon").className="check err"; $("doneIcon").innerHTML="&#33;";
+        $("doneTitle").className="err"; $("doneTitle").textContent="Generation failed";
+        $("doneMsg").textContent=err.message;
+        $("downloadBtn").style.display="none";
+        $("doneOverlay").className="overlay show";
+      })
+      .then(function(){ button.disabled=false; });
+  }
+  $("downloadBtn").addEventListener("click", function(){
+    if(!lastBlob) return;
+    var url=URL.createObjectURL(lastBlob); var a=document.createElement("a");
+    a.href=url; a.download=downloadName; document.body.appendChild(a); a.click();
+    setTimeout(function(){ a.remove(); URL.revokeObjectURL(url); },3000);
+  });
+  $("closeBtn").addEventListener("click", function(){ $("doneOverlay").className="overlay"; });
+
+  // ======================= DOCUMENTS FLOW =======================
+  var im=$("inputMethod");
+  im.addEventListener("change", function(){
+    var p=im.value==="File Path"; $("pathRow").className=p?"":"row-hidden"; $("uploadRow").className=p?"row-hidden":"";
+  });
+  var fileInput=$("brdFile");
+  fileInput.addEventListener("change", function(){
+    if(fileInput.files.length){ $("fileName").textContent=fileInput.files[0].name; $("removeFileBtn").className="fb-remove"; }
+    else { $("fileName").textContent="Choose a file…"; $("removeFileBtn").className="fb-remove row-hidden"; }
+  });
+  $("removeFileBtn").addEventListener("click", function(){ fileInput.value=""; $("fileName").textContent="Choose a file…"; $("removeFileBtn").className="fb-remove row-hidden"; });
+  function updateTcFields(){ var s=$("genTestCases").checked; $("preConditionsField").className=s?"field":"field row-hidden"; $("testStepsField").className=s?"field":"field row-hidden"; }
+  $("genTestCases").addEventListener("change", updateTcFields); updateTcFields();
+
+  $("docForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var outputs=[];
+    if($("genUserStories").checked) outputs.push("UserStories");
+    if($("genScenarios").checked) outputs.push("Scenarios");
+    if($("genTestCases").checked) outputs.push("TestCases");
+    if(!outputs.length){ alert("Please select at least one item to generate."); return; }
+    var method=im.value;
+    if($("genTestCases").checked){
+      if(!$("preConditions").value.trim()){ alert("Preconditions are required when generating Test Cases."); return; }
+      if(!$("testSteps").value.trim()){ alert("Default Test Steps are required when generating Test Cases."); return; }
+    }
+    var fd=new FormData();
+    fd.append("inputMethod", method);
+    fd.append("brdFilePath", $("brdFilePath").value.trim());
+    fd.append("preConditions", $("preConditions").value);
+    fd.append("testSteps", $("testSteps").value);
+    fd.append("description", $("description").value);
+    fd.append("outputs", outputs.join(","));
+    if(method==="Upload File"){
+      if(!fileInput.files.length){ alert("Please choose a BRD file."); return; }
+      fd.append("brdFile", fileInput.files[0]);
+    } else if(!$("brdFilePath").value.trim()){ alert("Please enter the BRD file path."); return; }
+
+    var label = outputs.map(function(o){ return {UserStories:"User Stories",Scenarios:"Test Scenarios",TestCases:"Test Cases"}[o]; }).join(", ");
+    runGenerate(fetch("/generate-testcases",{method:"POST",body:fd}), label, $("docGenBtn"));
+  });
+
+  // ======================= SCENARIOS FLOW =======================
+  var scenarios=$("scenarios"), charCount=$("charCount");
+  scenarios.addEventListener("input", function(){
+    charCount.textContent = scenarios.value.length;
+    scenarios.classList.remove("invalid");
+  });
+  $("exampleBtn").addEventListener("click", function(){
+    scenarios.value =
+      "1. User should be able to login with valid credentials\n" +
+      "2. User should not be able to login with invalid password\n" +
+      "3. System should lock the account after 5 failed login attempts\n" +
+      "4. User should be able to reset the password using a link sent to the registered email\n" +
+      "5. Only Admin users should be able to access the admin dashboard";
+    charCount.textContent = scenarios.value.length;
+    scenarios.focus();
+  });
+  $("scenariosGenBtn").addEventListener("click", function(){
+    var text = scenarios.value.trim();
+    if(!text){ scenarios.classList.add("invalid"); scenarios.focus(); alert("Please enter at least one scenario."); return; }
+    runGenerate(
+      fetch("/generate-scenarios",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({scenarios:text})}),
+      "Test Cases", $("scenariosGenBtn")
+    );
+  });
+</script>
+</body>
+</html>
