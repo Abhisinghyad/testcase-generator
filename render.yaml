@@ -1,0 +1,22 @@
+# One-click deploy blueprint for Render (https://render.com).
+# In Render: New + → Blueprint → connect this repo. Then set the secret env vars
+# (OPENROUTER_API_KEY and APP_PASSWORD) in the dashboard.
+services:
+  - type: web
+    name: testcase-generator
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false            # set this secret in the Render dashboard
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OPENROUTER_MODEL
+        value: openai/gpt-4o-mini
+      - key: OPENROUTER_MAX_TOKENS
+        value: "4000"
+      - key: APP_PASSWORD
+        sync: false            # set a password to protect the public URL (recommended)

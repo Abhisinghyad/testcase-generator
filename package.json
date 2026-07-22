@@ -4,6 +4,9 @@
   "description": "Generate test cases from a BRD (doc/pdf/excel) using the Claude API and export a downloadable Excel file.",
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server.js"
   },

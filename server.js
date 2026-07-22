@@ -19,6 +19,24 @@ const AI_MODEL = process.env.OPENAI_MODEL || process.env.OPENROUTER_MODEL || 'gp
 const MAX_OUTPUT_TOKENS = Number(process.env.AI_MAX_TOKENS || process.env.OPENROUTER_MAX_TOKENS || 8000);
 
 const app = express();
+
+// Optional password protection for public hosting. When APP_PASSWORD is set, every
+// request requires HTTP Basic auth (any username, that password). Leave it unset for
+// open local use. STRONGLY recommended when hosting publicly — the app spends your API key.
+const APP_PASSWORD = process.env.APP_PASSWORD || '';
+if (APP_PASSWORD) {
+  app.use((req, res, next) => {
+    const hdr = req.headers.authorization || '';
+    const [scheme, encoded] = hdr.split(' ');
+    if (scheme === 'Basic' && encoded) {
+      const pass = Buffer.from(encoded, 'base64').toString().split(':').slice(1).join(':');
+      if (pass === APP_PASSWORD) return next();
+    }
+    res.set('WWW-Authenticate', 'Basic realm="Test Case Creation Portal"');
+    return res.status(401).send('Authentication required.');
+  });
+}
+
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 app.use(express.json({ limit: '4mb' }));
 app.use(express.static(path.join(__dirname, 'public')));

@@ -100,6 +100,26 @@ when the workbook is opened and as you fill in the Execution Status column.
 
 ---
 
+## ☁️ Deploy to the public internet (Render — free)
+
+> ⚠️ **This app spends your API key.** Always set `APP_PASSWORD` before hosting publicly, or anyone
+> who finds the URL can run generations on your account.
+
+1. Push this repo to GitHub (already done if you're reading this there).
+2. Go to **https://render.com** → sign up (free) → **New +** → **Blueprint**.
+3. Connect this repository — Render reads [`render.yaml`](render.yaml) automatically.
+4. In the service's **Environment** tab, set the two secrets:
+   - `OPENROUTER_API_KEY` = your `sk-or-v1-…` key
+   - `APP_PASSWORD` = a password of your choice
+5. Click **Deploy**. In ~2 minutes you get a public URL like
+   `https://testcase-generator.onrender.com`.
+
+Alternatively, any Docker host (Railway, Fly.io, Google Cloud Run) can build the included
+[`Dockerfile`](Dockerfile) — set the same environment variables there.
+
+> Render's **free** web service sleeps after ~15 min of inactivity and takes a few seconds to wake on
+> the next request. Upgrade the plan for always-on.
+
 ## 📝 Notes & limitations
 
 - Legacy `.doc` / `.xls` are not supported — save as `.docx` / `.xlsx` (or `.pdf`) first.
